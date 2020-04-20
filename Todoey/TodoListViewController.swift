@@ -19,6 +19,7 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+//        sets items to the array of keys stored in the defaults of the phone
         if let items = defaults.array(forKey: "TodoListArray") as? [String] {
             itemArray = items
         }
