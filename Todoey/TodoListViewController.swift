@@ -13,9 +13,16 @@ class TodoListViewController: UITableViewController {
 
     var itemArray = ["Homework", "Reading", "Writing"]
     
+    let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+            itemArray = items
+        }
+        
     }
 
     
@@ -49,13 +56,13 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print(itemArray[indexPath.row])
         
-//        if the cell is not selected
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .none {
-//            select it
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        } else {
-//            if it is selected, deselect it
+//        if the cell is selected
+        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+//            deselect it
             tableView.cellForRow(at: indexPath)?.accessoryType = .none
+        } else {
+//            if it is not selected, select it
+            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
         }
         
 //        deselect the row
@@ -82,6 +89,9 @@ class TodoListViewController: UITableViewController {
                 
 //                add it to the list
                 self.itemArray.append(item)
+                
+//                saves the item array internally
+                self.defaults.set(self.itemArray, forKey: "TodoListArray")
                 
 //                and refresh the table
                 self.tableView.reloadData()
