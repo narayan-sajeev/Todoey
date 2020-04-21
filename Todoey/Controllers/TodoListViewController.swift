@@ -11,16 +11,17 @@ import UIKit
 // UITableViewController takes care of many of the delegate events and IBActions/IBOutlets that would have been necessary when inheriting from UIViewController
 class TodoListViewController: UITableViewController {
 
-    var itemArray = ["Homework", "Reading", "Writing"]
+    var itemArray = [Item]()
     
     let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+
         
-//        sets items to the array of keys stored in the defaults of the phone
-        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+//       sets items to the array of keys stored in the defaults of the phone
+        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
             itemArray = items
         }
         
@@ -43,9 +44,17 @@ class TodoListViewController: UITableViewController {
 //        create the cell from a reusable cell
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-//        set the text of the label of the cell to the element in the array with that index
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
         
+//        set the text of the label of the cell to the element in the array with that index
+        cell.textLabel?.text = item.title
+        
+//        Ternary operator ->
+//        value = condition ? valueIfTrue : valueIfFalse
+        
+//        sets the cell to check if and only if the item is checked
+        cell.accessoryType = item.done ? .checkmark : .none
+
         return cell
         
     }
@@ -57,14 +66,12 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print(itemArray[indexPath.row])
         
-//        if the cell is selected
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-//            deselect it
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-//            if it is not selected, select it
-            tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
+//        sets the done property to the opposite of the current property
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        
+//        reload the data
+        tableView.reloadData()
+        
         
 //        deselect the row
         tableView.deselectRow(at: indexPath, animated: true)
@@ -88,8 +95,12 @@ class TodoListViewController: UITableViewController {
 //            try to open the text the user entered
             if let item = textField.text {
                 
+//                put the text into the Item object
+                let newItem = Item()
+                newItem.title = item
+                
 //                add it to the list
-                self.itemArray.append(item)
+                self.itemArray.append(newItem)
                 
 //                saves the item array internally
                 self.defaults.set(self.itemArray, forKey: "TodoListArray")
