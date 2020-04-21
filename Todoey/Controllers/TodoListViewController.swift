@@ -13,17 +13,28 @@ class TodoListViewController: UITableViewController {
 
     var itemArray = [Item]()
     
-    let defaults = UserDefaults.standard
+//        sets the file path where we will store the item
+        
+//        FileManager is an interface to interact with files on the device
+//        we are using the default FileManager to retrieve the url for the directory we want to open
+//        there is only one directory we want to retrieve, so we pull out the first once
+//        appendingPathComponent adds the path of the program itself to the current url so we can get the entire url
+//        we pass in Items.plist as the file we want to retrieve
+        
+//        dataFilePath is an optional, since there might not be any url
+    
+        let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-
         
-//       sets items to the array of keys stored in the defaults of the phone
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
+//        prints the local file location where the property list of the items is being stored
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!)
+        
+//        if let items = defaults.array(forKey: "ToDoListArray") as? [Item] {
+//            itemArray = item
+//        }
         
     }
 
@@ -64,14 +75,12 @@ class TodoListViewController: UITableViewController {
  
 //    deals with what happens when a row is selected
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(itemArray[indexPath.row])
         
 //        sets the done property to the opposite of the current property
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
-//        reload the data
-        tableView.reloadData()
-        
+//        save the items to the file
+        saveItems()
         
 //        deselect the row
         tableView.deselectRow(at: indexPath, animated: true)
@@ -102,11 +111,8 @@ class TodoListViewController: UITableViewController {
 //                add it to the list
                 self.itemArray.append(newItem)
                 
-//                saves the item array internally
-                self.defaults.set(self.itemArray, forKey: "TodoListArray")
-                
-//                and refresh the table
-                self.tableView.reloadData()
+//                save the items to the file
+                self.saveItems()
                 
             }
             
@@ -123,6 +129,29 @@ class TodoListViewController: UITableViewController {
         
 //        presents the alert
         present(alert, animated: true, completion: nil)
+        
+    }
+    
+//    creates a function to save the items to the list
+    func saveItems() {
+        
+//      create an object to encode the data
+        let encoder = PropertyListEncoder()
+        
+//      try to encode the data
+        do {
+//          encode the data
+            let data = try encoder.encode(itemArray)
+//          write the data
+            try data.write(to: dataFilePath!)
+//       if there is an error
+        } catch {
+//          print the error
+            print("Error", error)
+        }
+        
+//      and refresh the table
+        tableView.reloadData()
         
     }
     
