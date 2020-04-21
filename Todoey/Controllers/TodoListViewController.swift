@@ -36,6 +36,8 @@ class TodoListViewController: UITableViewController {
 //            itemArray = item
 //        }
         
+        loadItems()
+        
     }
 
     
@@ -153,6 +155,33 @@ class TodoListViewController: UITableViewController {
 //      and refresh the table
         tableView.reloadData()
         
+    }
+
+//    creates a function to load the items
+    func loadItems() {
+//        try to set data to contents of the dataFilePath represented as a Data datatype
+        if let data = try? Data(contentsOf: dataFilePath!) {
+//            create a decoding object
+            let decoder = PropertyListDecoder()
+
+//            it might fail in the process of decoding, so we must catch the errors
+            do {
+                
+//              decodes the itemArray
+                            
+//              we need to specify the type of the data we are going to decode, since Swift cannot infer it
+//               the data type is an array of Item objects, and we show the TYPE that is an array of item objects by using the .self keyword
+//              so [Item] refers to an array of Item objects, but [Item].self refers to the Item array DATATYPE
+
+                itemArray = try decoder.decode([Item].self, from: data)
+                
+//            if there is an error
+            } catch {
+                
+//                print it
+                print(error)
+            }
+        }
     }
     
 }
